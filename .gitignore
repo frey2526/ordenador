@@ -1,0 +1,10 @@
+# Entorno virtual
+.venv/
+venv/
+
+# Caché de Python
+__pycache__/
+*.pyc
+
+# Archivos locales de prueba / datos que no se suben
+pruebas/
