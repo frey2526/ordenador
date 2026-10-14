@@ -1,5 +1,6 @@
 from pathlib import Path
 import shutil
+import sys
 
 # La carpeta que vamos a ordenar. De momento es "pruebas".
 CARPETA = Path(__file__).parent / "pruebas"
@@ -38,5 +39,22 @@ def organizar(carpeta):
     print(f"\nListo. {movidos} archivo(s) organizado(s).")
 
 
+def main():
+    """Decide qué carpeta ordenar y lanza el proceso."""
+    # sys.argv son las palabras que escribes tras 'python ordenador.py'.
+    # argv[0] es el propio script; a partir de argv[1] van tus argumentos.
+    if len(sys.argv) > 1:
+        carpeta = Path(sys.argv[1]).expanduser().resolve()
+    else:
+        carpeta = CARPETA  # sin argumentos: usamos la carpeta de pruebas
+
+    if not carpeta.is_dir():
+        print(f"Error: '{carpeta}' no es una carpeta válida.")
+        return
+
+    print(f"Ordenando: {carpeta}\n")
+    organizar(carpeta)
+
+
 if __name__ == "__main__":
-    organizar(CARPETA)
+    main()
