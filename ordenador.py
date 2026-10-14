@@ -23,6 +23,25 @@ def categoria_de(archivo):
     return "otros"  # cualquier extensión desconocida cae aquí
 
 
+def destino_libre(carpeta_destino, nombre):
+    """Devuelve una ruta con nombre libre dentro de 'carpeta_destino'.
+
+    Si 'foto.jpg' ya existe, prueba 'foto (1).jpg', 'foto (2).jpg'...
+    """
+    ruta = carpeta_destino / nombre
+    if not ruta.exists():
+        return ruta
+
+    base = Path(nombre).stem    # "foto"
+    ext = Path(nombre).suffix   # ".jpg"
+    numero = 1
+    while True:
+        candidato = carpeta_destino / f"{base} ({numero}){ext}"
+        if not candidato.exists():
+            return candidato
+        numero += 1
+
+
 def organizar(carpeta, simular=False):
     """Mueve los archivos sueltos de 'carpeta' a subcarpetas por tipo.
 
@@ -34,12 +53,13 @@ def organizar(carpeta, simular=False):
     movidos = 0
     for archivo in archivos:
         destino = carpeta / categoria_de(archivo)   # ej: pruebas / imagenes
+        ruta_final = destino_libre(destino, archivo.name)  # evita sobrescribir
         etiqueta = "[SIMULADO] " if simular else ""
-        print(f"{etiqueta}{archivo.name}  ->  {destino.name}/")
+        print(f"{etiqueta}{archivo.name}  ->  {destino.name}/{ruta_final.name}")
 
         if not simular:  # solo movemos cuando NO estamos simulando
             destino.mkdir(exist_ok=True)  # crea la subcarpeta si no existe
-            shutil.move(str(archivo), str(destino / archivo.name))
+            shutil.move(str(archivo), str(ruta_final))
         movidos += 1
 
     accion = "Se moverían" if simular else "Listo."
