@@ -23,28 +23,41 @@ def categoria_de(archivo):
     return "otros"  # cualquier extensión desconocida cae aquí
 
 
-def organizar(carpeta):
-    """Mueve los archivos sueltos de 'carpeta' a subcarpetas por tipo."""
+def organizar(carpeta, simular=False):
+    """Mueve los archivos sueltos de 'carpeta' a subcarpetas por tipo.
+
+    Si 'simular' es True, solo muestra lo que haría, sin tocar nada.
+    """
     # Materializamos la lista primero: así no modificamos la carpeta mientras la leemos.
     archivos = [f for f in carpeta.iterdir() if f.is_file()]
 
     movidos = 0
     for archivo in archivos:
         destino = carpeta / categoria_de(archivo)   # ej: pruebas / imagenes
-        destino.mkdir(exist_ok=True)                # crea la subcarpeta si no existe
-        shutil.move(str(archivo), str(destino / archivo.name))
-        print(f"{archivo.name}  ->  {destino.name}/")
+        etiqueta = "[SIMULADO] " if simular else ""
+        print(f"{etiqueta}{archivo.name}  ->  {destino.name}/")
+
+        if not simular:  # solo movemos cuando NO estamos simulando
+            destino.mkdir(exist_ok=True)  # crea la subcarpeta si no existe
+            shutil.move(str(archivo), str(destino / archivo.name))
         movidos += 1
 
-    print(f"\nListo. {movidos} archivo(s) organizado(s).")
+    accion = "Se moverían" if simular else "Listo."
+    print(f"\n{accion} {movidos} archivo(s).")
 
 
 def main():
     """Decide qué carpeta ordenar y lanza el proceso."""
     # sys.argv son las palabras que escribes tras 'python ordenador.py'.
     # argv[0] es el propio script; a partir de argv[1] van tus argumentos.
-    if len(sys.argv) > 1:
-        carpeta = Path(sys.argv[1]).expanduser().resolve()
+    argumentos = sys.argv[1:]
+
+    # Buscamos la bandera --simular y la quitamos de la lista.
+    simular = "--simular" in argumentos
+    argumentos = [a for a in argumentos if a != "--simular"]
+
+    if argumentos:
+        carpeta = Path(argumentos[0]).expanduser().resolve()
     else:
         carpeta = CARPETA  # sin argumentos: usamos la carpeta de pruebas
 
@@ -53,7 +66,7 @@ def main():
         return
 
     print(f"Ordenando: {carpeta}\n")
-    organizar(carpeta)
+    organizar(carpeta, simular=simular)
 
 
 if __name__ == "__main__":
